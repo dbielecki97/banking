@@ -15,6 +15,7 @@ func Start() {
 	ch := CustomerHandler{service.NewDefaultCustomerService(domain.NewCustomerRepositoryDb())}
 
 	router.HandleFunc("/customers", ch.getAllCustomers).Methods(http.MethodGet)
+	router.HandleFunc("/customers/{customer_id:[0-9]+}", ch.getCustomer).Methods(http.MethodGet)
 
 	err := http.ListenAndServe(":8000", router)
 	if err != nil {

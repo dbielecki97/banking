@@ -1,9 +1,5 @@
 package domain
 
-type CustomerRepository interface {
-	FindAll() ([]Customer, error)
-}
-
 type CustomerRepositoryStub struct {
 	customers []Customer
 }
