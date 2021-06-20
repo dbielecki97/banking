@@ -2,6 +2,7 @@ package domain
 
 import (
 	"database/sql"
+	"github.com/dbielecki97/banking/errs"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"time"
@@ -23,15 +24,19 @@ func NewCustomerRepositoryDb() *CustomerRepositoryDb {
 	return &CustomerRepositoryDb{client}
 }
 
-func (d CustomerRepositoryDb) ById(id string) (*Customer, error) {
+func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.AppError) {
 	customerSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id = ?"
 
 	row := d.client.QueryRow(customerSql, id)
 	var c Customer
 	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFound("customer not found")
+		}
+
 		log.Printf("Error while scanning customer %v", err)
-		return nil, err
+		return nil, errs.NewUnexpected("unexpected database error")
 	}
 
 	return &c, nil
