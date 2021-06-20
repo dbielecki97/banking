@@ -24,28 +24,17 @@ func NewCustomerRepositoryDb() *CustomerRepositoryDb {
 	return &CustomerRepositoryDb{client}
 }
 
-func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.AppError) {
-	customerSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id = ?"
-
-	row := d.client.QueryRow(customerSql, id)
-	var c Customer
-	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errs.NewNotFound("customer not found")
-		}
-
-		log.Printf("Error while scanning customer %v", err)
-		return nil, errs.NewUnexpected("unexpected database error")
+func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.AppError) {
+	var rows *sql.Rows
+	var err error
+	if status == "" {
+		findAllSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers"
+		rows, err = d.client.Query(findAllSql)
+	} else {
+		findAllSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where status = ?"
+		rows, err = d.client.Query(findAllSql, status)
 	}
 
-	return &c, nil
-}
-
-func (d CustomerRepositoryDb) FindAll() ([]Customer, *errs.AppError) {
-	findAllSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers"
-
-	rows, err := d.client.Query(findAllSql)
 	if err != nil {
 		log.Printf("Error while querying customer table %v", err)
 		return nil, errs.NewUnexpected("unexpected database error")
@@ -62,4 +51,22 @@ func (d CustomerRepositoryDb) FindAll() ([]Customer, *errs.AppError) {
 		customers = append(customers, c)
 	}
 	return customers, nil
+}
+
+func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.AppError) {
+	customerSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id = ?"
+
+	row := d.client.QueryRow(customerSql, id)
+	var c Customer
+	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFound("customer not found")
+		}
+
+		log.Printf("Error while scanning customer %v", err)
+		return nil, errs.NewUnexpected("unexpected database error")
+	}
+
+	return &c, nil
 }
