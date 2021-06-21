@@ -7,12 +7,19 @@ import (
 	"time"
 )
 
+const TSLayout = "2006-01-02 15:04:05"
+
 type AccountService interface {
 	NewAccount(dto.NewAccountRequest) (*dto.NewAccountResponse, *errs.AppError)
+	MakeTransaction(request dto.TransactionRequest) (*dto.TransactionResponse, *errs.AppError)
 }
 
 type DefaultAccountService struct {
-	repo domain.AccountRepository
+	accountRepo domain.AccountRepository
+}
+
+func NewDefaultAccountService(repo domain.AccountRepository) DefaultAccountService {
+	return DefaultAccountService{accountRepo: repo}
 }
 
 func (s DefaultAccountService) NewAccount(req dto.NewAccountRequest) (*dto.NewAccountResponse, *errs.AppError) {
@@ -30,7 +37,7 @@ func (s DefaultAccountService) NewAccount(req dto.NewAccountRequest) (*dto.NewAc
 		Status:      "1",
 	}
 
-	newAccount, err := s.repo.Save(a)
+	newAccount, err := s.accountRepo.Save(a)
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +46,37 @@ func (s DefaultAccountService) NewAccount(req dto.NewAccountRequest) (*dto.NewAc
 	return &response, nil
 }
 
-func NewAccountService(repo domain.AccountRepository) DefaultAccountService {
-	return DefaultAccountService{repo}
+func (s DefaultAccountService) MakeTransaction(req dto.TransactionRequest) (*dto.TransactionResponse, *errs.AppError) {
+	err := req.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	if req.InTransactionTypeWithdrawal() {
+		acc, err := s.accountRepo.FindById(req.AccountId)
+		if err != nil {
+			return nil, err
+		}
+
+		if !acc.CanWithdraw(req.Amount) {
+			return nil, errs.NewValidation("Insufficient balance in the account")
+		}
+	}
+
+	t := domain.Transaction{
+		TransactionId:   "",
+		AccountId:       req.AccountId,
+		Amount:          req.Amount,
+		TransactionType: req.TransactionType,
+		TransactionDate: time.Now().Format(TSLayout),
+	}
+
+	transaction, err := s.accountRepo.SaveTransaction(t)
+	if err != nil {
+		return nil, err
+	}
+
+	response := transaction.ToDto()
+
+	return &response, nil
 }

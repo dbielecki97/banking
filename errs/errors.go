@@ -28,6 +28,13 @@ func NewValidation(message string) *AppError {
 	}
 }
 
+func NewTransaction(message string) *AppError {
+	return &AppError{
+		Message: message,
+		Code:    http.StatusBadRequest,
+	}
+}
+
 func (e AppError) AsMessage() *AppError {
 	return &AppError{
 		Message: e.Message,
