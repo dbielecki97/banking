@@ -52,7 +52,7 @@ func (s DefaultAccountService) MakeTransaction(req dto.TransactionRequest) (*dto
 		return nil, err
 	}
 
-	if req.InTransactionTypeWithdrawal() {
+	if req.IsTransactionTypeWithdrawal() {
 		acc, err := s.accountRepo.FindById(req.AccountId)
 		if err != nil {
 			return nil, err
