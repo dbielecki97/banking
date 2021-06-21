@@ -2,7 +2,7 @@ package domain
 
 import (
 	"encoding/json"
-	logger2 "github.com/dbielecki97/banking-lib/logger"
+	"github.com/dbielecki97/banking-lib/logger"
 	"github.com/dbielecki97/banking/dto"
 	"net/http"
 	"net/url"
@@ -23,12 +23,12 @@ func (r RemoteAuthRepository) IsAuthorized(token string, routeName string, vars 
 	u := buildVerifyUrl(token, routeName, vars)
 
 	if response, err := http.Get(u); err != nil {
-		logger2.Error("Error while sending..." + err.Error())
+		logger.Error("Error while sending..." + err.Error())
 		return false
 	} else {
 		var ar dto.VerifyResponse
 		if err := json.NewDecoder(response.Body).Decode(&ar); err != nil {
-			logger2.Error("Error while decoding response from auth server: " + err.Error())
+			logger.Error("Error while decoding response from auth server: " + err.Error())
 			return false
 		}
 		return ar.IsAuthorized
