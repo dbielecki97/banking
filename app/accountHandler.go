@@ -12,7 +12,7 @@ type AccountHandler struct {
 	service service.AccountService
 }
 
-func (h AccountHandler) NewAccount(w http.ResponseWriter, r *http.Request) {
+func (h AccountHandler) newAccount(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	customerId := vars["customer_id"]
 	var request dto.NewAccountRequest
@@ -30,7 +30,7 @@ func (h AccountHandler) NewAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h AccountHandler) NewTransaction(w http.ResponseWriter, r *http.Request) {
+func (h AccountHandler) newTransaction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accountId := vars["account_id"]
 

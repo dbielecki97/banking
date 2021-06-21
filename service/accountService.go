@@ -9,6 +9,7 @@ import (
 
 const TSLayout = "2006-01-02 15:04:05"
 
+//go:generate mockgen -destination=../mocks/service/mockAccountService.go -package=service github.com/dbielecki97/banking/service AccountService
 type AccountService interface {
 	NewAccount(dto.NewAccountRequest) (*dto.NewAccountResponse, *errs.AppError)
 	MakeTransaction(request dto.TransactionRequest) (*dto.TransactionResponse, *errs.AppError)

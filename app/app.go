@@ -34,11 +34,11 @@ func Start() {
 		Methods(http.MethodGet).
 		Name("GetCustomer")
 	router.
-		HandleFunc("/customers/{customer_id:[0-9]+}/account", ah.NewAccount).
+		HandleFunc("/customers/{customer_id:[0-9]+}/account", ah.newAccount).
 		Methods(http.MethodPost).
 		Name("NewAccount")
 	router.
-		HandleFunc("/customers/{customer_id:[0-9]+}/account/{account_id:[0-9]+}", ah.NewTransaction).
+		HandleFunc("/customers/{customer_id:[0-9]+}/account/{account_id:[0-9]+}", ah.newTransaction).
 		Methods(http.MethodPost).
 		Name("NewTransaction")
 
