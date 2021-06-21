@@ -2,8 +2,8 @@ package app
 
 import (
 	"fmt"
+	logger2 "github.com/dbielecki97/banking-lib/logger"
 	"github.com/dbielecki97/banking/domain"
-	"github.com/dbielecki97/banking/logger"
 	"github.com/dbielecki97/banking/service"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -79,7 +79,7 @@ func sanityCheck() {
 
 func checkEnvVariable(key string) bool {
 	if os.Getenv(key) == "" {
-		logger.Error("Environment variable " + key + " not defined!")
+		logger2.Error("Environment variable " + key + " not defined!")
 		return false
 	}
 	return true

@@ -1,11 +1,11 @@
 package main
 
 import (
+	logger2 "github.com/dbielecki97/banking-lib/logger"
 	"github.com/dbielecki97/banking/app"
-	"github.com/dbielecki97/banking/logger"
 )
 
 func main() {
-	logger.Info("Starting application...")
+	logger2.Info("Starting application...")
 	app.Start()
 }

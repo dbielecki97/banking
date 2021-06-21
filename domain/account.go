@@ -1,8 +1,8 @@
 package domain
 
 import (
+	"github.com/dbielecki97/banking-lib/errs"
 	"github.com/dbielecki97/banking/dto"
-	"github.com/dbielecki97/banking/errs"
 	"time"
 )
 

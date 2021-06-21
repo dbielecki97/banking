@@ -1,8 +1,8 @@
 package app
 
 import (
+	"github.com/dbielecki97/banking-lib/errs"
 	"github.com/dbielecki97/banking/domain"
-	"github.com/dbielecki97/banking/errs"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strings"

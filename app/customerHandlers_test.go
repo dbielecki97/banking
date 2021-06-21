@@ -1,8 +1,8 @@
 package app
 
 import (
+	"github.com/dbielecki97/banking-lib/errs"
 	"github.com/dbielecki97/banking/dto"
-	"github.com/dbielecki97/banking/errs"
 	"github.com/dbielecki97/banking/mocks/service"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"

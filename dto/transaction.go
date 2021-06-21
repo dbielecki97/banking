@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/dbielecki97/banking/errs"
+import (
+	"github.com/dbielecki97/banking-lib/errs"
+)
 
 type TransactionRequest struct {
 	AccountId       string  `json:"account_id,omitempty"`
