@@ -4,10 +4,7 @@ import (
 	"github.com/dbielecki97/banking/domain"
 	"github.com/dbielecki97/banking/dto"
 	"github.com/dbielecki97/banking/errs"
-	"time"
 )
-
-const TSLayout = "2006-01-02 15:04:05"
 
 //go:generate mockgen -destination=../mocks/service/mockAccountService.go -package=service github.com/dbielecki97/banking/service AccountService
 type AccountService interface {
@@ -24,27 +21,16 @@ func NewDefaultAccountService(repo domain.AccountRepository) DefaultAccountServi
 }
 
 func (s DefaultAccountService) NewAccount(req dto.NewAccountRequest) (*dto.NewAccountResponse, *errs.AppError) {
-	err := req.Validate()
-	if err != nil {
+	if err := req.Validate(); err != nil {
 		return nil, err
 	}
 
-	a := domain.Account{
-		AccountId:   "",
-		CustomerId:  req.CustomerId,
-		OpeningDate: time.Now().Format("2006-01-02 15:04:05"),
-		AccountType: req.AccountType,
-		Amount:      req.Amount,
-		Status:      "1",
-	}
-
-	newAccount, err := s.accountRepo.Save(a)
-	if err != nil {
+	account := domain.NewAccount(req)
+	if newAccount, err := s.accountRepo.Save(account); err != nil {
 		return nil, err
+	} else {
+		return newAccount.ToNewAccountResponseDto(), nil
 	}
-
-	response := newAccount.ToNewAccountResponseDto()
-	return &response, nil
 }
 
 func (s DefaultAccountService) MakeTransaction(req dto.TransactionRequest) (*dto.TransactionResponse, *errs.AppError) {
@@ -64,20 +50,13 @@ func (s DefaultAccountService) MakeTransaction(req dto.TransactionRequest) (*dto
 		}
 	}
 
-	t := domain.Transaction{
-		TransactionId:   "",
-		AccountId:       req.AccountId,
-		Amount:          req.Amount,
-		TransactionType: req.TransactionType,
-		TransactionDate: time.Now().Format(TSLayout),
-	}
-
-	transaction, err := s.accountRepo.SaveTransaction(t)
+	transaction := domain.NewTransaction(req)
+	newTransaction, err := s.accountRepo.SaveTransaction(transaction)
 	if err != nil {
 		return nil, err
 	}
 
-	response := transaction.ToDto()
+	response := newTransaction.ToDto()
 
 	return &response, nil
 }

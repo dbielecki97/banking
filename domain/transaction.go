@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/dbielecki97/banking/dto"
+	"time"
 )
 
 const WITHDRAWAL = "withdrawal"
@@ -31,5 +32,15 @@ func (t Transaction) ToDto() dto.TransactionResponse {
 		AccountId:       t.AccountId,
 		TransactionType: t.TransactionType,
 		TransactionDate: t.TransactionDate,
+	}
+}
+
+func NewTransaction(req dto.TransactionRequest) Transaction {
+	return Transaction{
+		TransactionId:   "",
+		AccountId:       req.AccountId,
+		Amount:          req.Amount,
+		TransactionType: req.TransactionType,
+		TransactionDate: time.Now().Format(TSLayout),
 	}
 }
