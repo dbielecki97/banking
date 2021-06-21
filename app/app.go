@@ -6,9 +6,11 @@ import (
 	"github.com/dbielecki97/banking/logger"
 	"github.com/dbielecki97/banking/service"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func Start() {
@@ -17,10 +19,15 @@ func Start() {
 	sanityCheck()
 
 	//ch := CustomerHandler{service.NewDefaultCustomerService(domain.NewCustomerRepositoryStub())}
-	ch := CustomerHandler{service.NewDefaultCustomerService(domain.NewCustomerRepositoryDb())}
+	dbClient := getDbClient()
+	customerRepositoryDb := domain.NewCustomerRepositoryDb(dbClient)
+	accountRepositoryDb := domain.NewAccountRepositoryDb(dbClient)
+	ch := CustomerHandler{service.NewDefaultCustomerService(customerRepositoryDb)}
+	ah := AccountHandler{service.NewAccountService(accountRepositoryDb)}
 
 	router.HandleFunc("/customers", ch.getAllCustomers).Methods(http.MethodGet)
 	router.HandleFunc("/customers/{customer_id:[0-9]+}", ch.getCustomer).Methods(http.MethodGet)
+	router.HandleFunc("/customers/{customer_id:[0-9]+}/account", ah.NewAccount).Methods(http.MethodPost)
 
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")
@@ -60,4 +67,23 @@ func checkEnvVariable(key string) bool {
 		return false
 	}
 	return true
+}
+
+func getDbClient() *sqlx.DB {
+	dbUser := os.Getenv("DB_USER")
+	dbPasswd := os.Getenv("DB_PASSWD")
+	dbAddr := os.Getenv("DB_ADDR")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+
+	dataSource := "%s:%s@tcp(%s:%s)/%s"
+	client, err := sqlx.Open("mysql", fmt.Sprintf(dataSource, dbUser, dbPasswd, dbAddr, dbPort, dbName))
+	if err != nil {
+		panic(err)
+	}
+
+	client.SetConnMaxLifetime(time.Minute * 3)
+	client.SetMaxIdleConns(10)
+	client.SetMaxOpenConns(10)
+	return client
 }
