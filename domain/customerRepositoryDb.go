@@ -2,10 +2,12 @@ package domain
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/dbielecki97/banking/errs"
 	"github.com/dbielecki97/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"os"
 	"time"
 )
 
@@ -14,7 +16,13 @@ type CustomerRepositoryDb struct {
 }
 
 func NewCustomerRepositoryDb() *CustomerRepositoryDb {
-	client, err := sqlx.Open("mysql", "root:codecamp@tcp(localhost:3306)/banking")
+	dbUser := os.Getenv("DB_USER")
+	dbPasswd := os.Getenv("DB_PASSWD")
+	dbAddr := os.Getenv("DB_ADDR")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	dataSource := "%s:%s@tcp(%s:%s)/%s"
+	client, err := sqlx.Open("mysql", fmt.Sprintf(dataSource, dbUser, dbPasswd, dbAddr, dbPort, dbName))
 	if err != nil {
 		panic(err)
 	}
