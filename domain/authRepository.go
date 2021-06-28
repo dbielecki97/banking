@@ -3,7 +3,6 @@ package domain
 import (
 	"encoding/json"
 	"github.com/dbielecki97/banking-lib/logger"
-	"github.com/dbielecki97/banking/dto"
 	"net/http"
 	"net/url"
 )
@@ -26,12 +25,16 @@ func (r RemoteAuthRepository) IsAuthorized(token string, routeName string, vars 
 		logger.Error("Error while sending..." + err.Error())
 		return false
 	} else {
-		var ar dto.VerifyResponse
-		if err := json.NewDecoder(response.Body).Decode(&ar); err != nil {
+		var res struct {
+			IsAuthorized bool   `json:"is_authorized,omitempty"`
+			Message      string `json:"message,omitempty"`
+		}
+
+		if err := json.NewDecoder(response.Body).Decode(&res); err != nil {
 			logger.Error("Error while decoding response from auth server: " + err.Error())
 			return false
 		}
-		return ar.IsAuthorized
+		return res.IsAuthorized
 	}
 }
 
